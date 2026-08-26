@@ -7,16 +7,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const menuToggle = document.getElementById("menuToggle");
     const mobileMenu = document.getElementById("mobileMenu");
 
-    const desktopLinks = document.querySelectorAll(
-        ".nav-menu a"
-    );
-
-    const mobileLinks = document.querySelectorAll(
-        ".mobile-menu a"
-    );
-
     const allNavLinks = document.querySelectorAll(
         ".nav-menu a, .mobile-menu a"
+    );
+
+    const desktopLinks = document.querySelectorAll(
+        ".nav-menu a"
     );
 
 
@@ -24,148 +20,91 @@ document.addEventListener("DOMContentLoaded", () => {
        MOBILE MENU
     ========================================================= */
 
+    const setMenuState = (open) => {
+
+        if (!menuToggle || !mobileMenu) return;
+
+        mobileMenu.classList.toggle("open", open);
+
+        menuToggle.setAttribute(
+            "aria-expanded",
+            String(open)
+        );
+
+        menuToggle.setAttribute(
+            "aria-label",
+            open ? "მენიუს დახურვა" : "მენიუს გახსნა"
+        );
+
+        menuToggle.textContent = open ? "✕" : "☰";
+
+        document.body.classList.toggle(
+            "menu-open",
+            open
+        );
+    };
+
+
     if (menuToggle && mobileMenu) {
-
-        /*
-         * მენიუს გახსნა / დახურვა
-         */
-
-        const setMenuState = (open) => {
-
-            mobileMenu.classList.toggle(
-                "open",
-                open
-            );
-
-            menuToggle.setAttribute(
-                "aria-expanded",
-                String(open)
-            );
-
-            menuToggle.setAttribute(
-                "aria-label",
-                open
-                    ? "მენიუს დახურვა"
-                    : "მენიუს გახსნა"
-            );
-
-            /*
-             * თუ მენიუ გახსნილია → X
-             * თუ დახურულია → ☰
-             */
-
-            menuToggle.innerHTML =
-                open ? "✕" : "☰";
-
-            /*
-             * Body scroll-ის კონტროლი
-             */
-
-            document.body.classList.toggle(
-                "menu-open",
-                open
-            );
-
-        };
-
-
-        /*
-         * საწყისი მდგომარეობა
-         */
 
         setMenuState(false);
 
 
-        /*
-         * Toggle
-         */
+        /* გახსნა / დახურვა */
 
-        menuToggle.addEventListener(
-            "click",
-            (event) => {
+        menuToggle.addEventListener("click", (event) => {
 
-                event.stopPropagation();
+            event.stopPropagation();
 
-                const isOpen =
-                    mobileMenu.classList.contains("open");
+            const isOpen =
+                mobileMenu.classList.contains("open");
 
-                setMenuState(!isOpen);
-
-            }
-        );
+            setMenuState(!isOpen);
+        });
 
 
-        /*
-         * Mobile link-ზე დაჭერისას
-         * მენიუ ავტომატურად იხურება
-         */
+        /* მენიუს ბმულზე დაჭერა */
 
-        mobileLinks.forEach(link => {
+        mobileMenu
+            .querySelectorAll("a")
+            .forEach(link => {
 
-            link.addEventListener(
-                "click",
-                () => {
-
+                link.addEventListener("click", () => {
                     setMenuState(false);
+                });
 
-                }
-            );
+            });
+
+
+        /* მენიუს გარეთ დაჭერა */
+
+        document.addEventListener("click", (event) => {
+
+            if (
+                !mobileMenu.contains(event.target) &&
+                !menuToggle.contains(event.target)
+            ) {
+
+                setMenuState(false);
+            }
 
         });
 
 
-        /*
-         * მენიუს გარეთ დაჭერისას დახურვა
-         */
+        /* ESC */
 
-        document.addEventListener(
-            "click",
-            (event) => {
+        document.addEventListener("keydown", (event) => {
 
-                const clickedInsideMenu =
-                    mobileMenu.contains(
-                        event.target
-                    );
+            if (
+                event.key === "Escape" &&
+                mobileMenu.classList.contains("open")
+            ) {
 
-                const clickedToggle =
-                    menuToggle.contains(
-                        event.target
-                    );
-
-                if (
-                    !clickedInsideMenu &&
-                    !clickedToggle
-                ) {
-
-                    setMenuState(false);
-
-                }
-
+                setMenuState(false);
+                menuToggle.focus();
             }
-        );
 
-
-        /*
-         * ESCAPE → დახურვა
-         */
-
-        document.addEventListener(
-            "keydown",
-            (event) => {
-
-                if (
-                    event.key === "Escape" &&
-                    mobileMenu.classList.contains("open")
-                ) {
-
-                    setMenuState(false);
-
-                    menuToggle.focus();
-
-                }
-
-            }
-        );
+        });
 
     }
 
@@ -176,30 +115,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const navigationMap = {
 
-        "მთავარი":
-            "index.html",
+        "მთავარი": "index.html",
 
-        "მოსაწვევები":
-            "services.html",
+        "მოსაწვევები": "services.html",
 
-        "ჩვენი ნამუშევრები":
-            "portfolio.html",
+        "ჩვენი ნამუშევრები": "portfolio.html",
 
-        "პორტფოლიო":
-            "portfolio.html",
+        "პორტფოლიო": "portfolio.html",
 
-        "ჩვენ შესახებ":
-            "about.html",
+        "ჩვენ შესახებ": "about.html",
 
-        "კონტაქტი":
-            "contact.html"
+        "კონტაქტი": "contact.html"
 
     };
 
 
-    /*
-     * ტექსტის გასუფთავება
-     */
+    /* =========================================================
+       TEXT NORMALIZER
+    ========================================================= */
 
     const normalizeText = (text) => {
 
@@ -210,16 +143,15 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
 
-    /*
-     * Navigation-ის href-ების ავტომატური გასწორება
-     */
+    /* =========================================================
+       FIX NAVIGATION LINKS
+    ========================================================= */
 
     allNavLinks.forEach(link => {
 
-        const text =
-            normalizeText(
-                link.textContent
-            );
+        const text = normalizeText(
+            link.textContent
+        );
 
         if (
             Object.prototype.hasOwnProperty.call(
@@ -228,18 +160,14 @@ document.addEventListener("DOMContentLoaded", () => {
             )
         ) {
 
-            link.setAttribute(
-                "href",
-                navigationMap[text]
-            );
-
+            link.href = navigationMap[text];
         }
 
     });
 
 
     /* =========================================================
-       ACTIVE PAGE
+       CURRENT PAGE
     ========================================================= */
 
     let currentPage =
@@ -248,56 +176,35 @@ document.addEventListener("DOMContentLoaded", () => {
             .pop()
             .toLowerCase();
 
-
-    /*
-     * თუ URL მთავარ root-ზეა:
-     *
-     * /
-     * /folder/
-     *
-     * ჩაითვალოს index.html-ად
-     */
-
-    if (
-        !currentPage ||
-        currentPage === "/"
-    ) {
-
-        currentPage =
-            "index.html";
-
+    if (!currentPage) {
+        currentPage = "index.html";
     }
 
 
-    /*
-     * GitHub Pages / ზოგადი URL მხარდაჭერა
-     */
+    /* =========================================================
+       GET PAGE NAME
+    ========================================================= */
 
-    const cleanPageName = (href) => {
+    const getPageName = (href) => {
 
         if (!href) return "";
 
         try {
 
-            const url =
-                new URL(
-                    href,
-                    window.location.href
-                );
+            const url = new URL(
+                href,
+                window.location.href
+            );
 
-            let page =
-                url.pathname
+            const pathname = url.pathname;
+
+            const page =
+                pathname
                     .split("/")
                     .pop()
                     .toLowerCase();
 
-            if (!page) {
-
-                page = "index.html";
-
-            }
-
-            return page;
+            return page || "index.html";
 
         } catch {
 
@@ -311,9 +218,9 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
 
-    /*
-     * ყველა link-ის შემოწმება
-     */
+    /* =========================================================
+       ACTIVE NAVIGATION
+    ========================================================= */
 
     allNavLinks.forEach(link => {
 
@@ -322,39 +229,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!href) return;
 
-
-        /*
-         * Anchor (#section)
-         * და გარე URL-ები არ შევცვალოთ
-         */
-
         if (
             href.startsWith("#") ||
             href.startsWith("http://") ||
             href.startsWith("https://") ||
             href.startsWith("mailto:")
         ) {
-
             return;
-
         }
 
-
         const linkPage =
-            cleanPageName(href);
+            getPageName(href);
 
+        const isActive =
+            linkPage === currentPage;
 
-        /*
-         * Active class
-         */
+        link.classList.toggle(
+            "active",
+            isActive
+        );
 
-        if (
-            linkPage === currentPage
-        ) {
-
-            link.classList.add(
-                "active"
-            );
+        if (isActive) {
 
             link.setAttribute(
                 "aria-current",
@@ -362,10 +257,6 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
         } else {
-
-            link.classList.remove(
-                "active"
-            );
 
             link.removeAttribute(
                 "aria-current"
@@ -377,13 +268,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* =========================================================
-       SMOOTH PAGE TRANSITION
+       PAGE TRANSITION
     ========================================================= */
-
-    /*
-     * შიდა გვერდზე გადასვლისას
-     * მცირე fade-out ეფექტი
-     */
 
     const internalLinks =
         document.querySelectorAll(
@@ -393,113 +279,67 @@ document.addEventListener("DOMContentLoaded", () => {
 
     internalLinks.forEach(link => {
 
-        link.addEventListener(
-            "click",
-            (event) => {
+        link.addEventListener("click", (event) => {
 
-                const href =
-                    link.getAttribute(
-                        "href"
-                    );
+            const href =
+                link.getAttribute("href");
 
-                if (!href) return;
-
-                /*
-                 * ახალი tab / Ctrl / Shift / Meta
-                 * გამოყენებისას transition არ გავაკეთოთ
-                 */
-
-                if (
-                    event.ctrlKey ||
-                    event.shiftKey ||
-                    event.metaKey ||
-                    event.button !== 0
-                ) {
-
-                    return;
-
-                }
-
-                /*
-                 * თუ იგივე გვერდია,
-                 * ჩვეულებრივ გადავიდეთ
-                 */
-
-                const targetPage =
-                    cleanPageName(href);
-
-                if (
-                    targetPage === currentPage
-                ) {
-
-                    return;
-
-                }
+            if (!href) return;
 
 
-                /*
-                 * Mobile menu-ის დახურვა
-                 */
+            /* ახალი tab / Ctrl / Shift / CMD */
 
-                if (
-                    mobileMenu &&
-                    menuToggle
-                ) {
-
-                    mobileMenu.classList.remove(
-                        "open"
-                    );
-
-                    menuToggle.setAttribute(
-                        "aria-expanded",
-                        "false"
-                    );
-
-                    menuToggle.setAttribute(
-                        "aria-label",
-                        "მენიუს გახსნა"
-                    );
-
-                    menuToggle.innerHTML =
-                        "☰";
-
-                    document.body.classList.remove(
-                        "menu-open"
-                    );
-
-                }
-
-
-                /*
-                 * Fade-out
-                 */
-
-                document.body.classList.add(
-                    "page-leaving"
-                );
-
-
-                /*
-                 * მცირე დაყოვნება
-                 */
-
-                event.preventDefault();
-
-                setTimeout(() => {
-
-                    window.location.href =
-                        href;
-
-                }, 180);
-
+            if (
+                event.ctrlKey ||
+                event.shiftKey ||
+                event.metaKey ||
+                event.button !== 0
+            ) {
+                return;
             }
-        );
+
+
+            const targetPage =
+                getPageName(href);
+
+
+            /* იგივე გვერდი */
+
+            if (
+                targetPage === currentPage
+            ) {
+                return;
+            }
+
+
+            /* მობილური მენიუს დახურვა */
+
+            setMenuState(false);
+
+
+            /* Fade */
+
+            document.body.classList.add(
+                "page-leaving"
+            );
+
+            event.preventDefault();
+
+
+            setTimeout(() => {
+
+                window.location.href =
+                    href;
+
+            }, 180);
+
+        });
 
     });
 
 
     /* =========================================================
-       PAGE LOAD ANIMATION
+       PAGE LOAD
     ========================================================= */
 
     requestAnimationFrame(() => {
@@ -512,7 +352,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* =========================================================
-       ACTIVE LINK HOVER EFFECT
+       DESKTOP NAV HOVER
     ========================================================= */
 
     desktopLinks.forEach(link => {
@@ -528,6 +368,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             }
         );
+
 
         link.addEventListener(
             "mouseleave",
@@ -549,11 +390,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ========================================================= */
 
     if (menuToggle) {
-
-        /*
-         * თუ HTML-ში aria ატრიბუტები არ გაქვს,
-         * JS ავტომატურად დაამატებს
-         */
 
         if (
             !menuToggle.hasAttribute(
@@ -585,12 +421,48 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* =========================================================
-       PREVENT BODY SCROLL WHEN MENU IS OPEN
+       PRICE CARD INTERACTION
+       თუ HTML-ში .package-card დაემატება,
+       პრემიუმ/სტანდარტის არჩევა იმუშავებს.
     ========================================================= */
 
-    /*
-     * CSS-ში .menu-open-საც დავამატებთ.
-     * Desktop-ზე გავლენას არ მოახდენს.
-     */
+    const packageCards =
+        document.querySelectorAll(
+            ".package-card"
+        );
+
+
+    packageCards.forEach(card => {
+
+        const buttons =
+            card.querySelectorAll(
+                "[data-package]"
+            );
+
+
+        buttons.forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    buttons.forEach(btn => {
+
+                        btn.classList.remove(
+                            "selected"
+                        );
+
+                    });
+
+                    button.classList.add(
+                        "selected"
+                    );
+
+                }
+            );
+
+        });
+
+    });
 
 });
